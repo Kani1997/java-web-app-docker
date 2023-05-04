@@ -1,18 +1,36 @@
-apiVersion: extensions/v1beta1
-kind: Deployment
+apiVersion: apps/v1
+kind: Deployment # Kubernetes resource kind we are creating
 metadata:
-  name: javawebapp-ENVIRONMENT-BUILD_NUMBER
+  name: spring-boot-k8s-deployment
 spec:
-  replicas: 1
+  selector:
+    matchLabels:
+      app: spring-boot-k8s
+  replicas: 2 # Number of replicas that will be created for this deployment
   template:
     metadata:
       labels:
-        app: javawebapp
-        version: "BUILD_NUMBER"
+        app: spring-boot-k8s
     spec:
       containers:
-      - name: javawebapp-ENVIRONMENT-BUILD_NUMBER
-        image: IMAGE
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 8080
+        - name: spring-boot-k8s
+          image: kvenkatesan1234/myimage:latest # Image that will be used to containers in the cluster
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8888 # The port that the container is running on in the cluster
+
+
+---
+
+apiVersion: v1 # Kubernetes API version
+kind: Service # Kubernetes resource kind we are creating
+metadata: # Metadata of the resource kind we are creating
+  name: springboot-k8ssvc
+spec:
+  selector:
+    app: spring-boot-k8s
+  ports:
+    - protocol: "TCP"
+      port: 8888 # The port that the service is running on in the cluster
+      targetPort: 8080 # The port exposed by the service
+  type: NodePort # type of the service.
